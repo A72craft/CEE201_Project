@@ -1,5 +1,6 @@
 # CEE201_project
 ### [Github repository for this project](https://github.com/A72craft/CEE201_Project.git)
+The code and the original .MD file is in the repository 
 ## Introduction:
 In this project we are asked to come up with a comprehensive covid-19 plan which is made of three parts: opening testing centers, providing the testing material, and picking up all the tests. In the following three parts we will be formatting the problem given and solving it with python.
 ## Part 1. Opening testing centers (facility location problem)
@@ -65,8 +66,9 @@ capacity = [25000,25000,25000,25000,25000,25000,25000,25000,25000,25000]
 demand = [2500,2000,3000,1000,2500,2500,4000,2000,1000,500, 
           2500,2000,3000,5000,2500,2000,1500,1000,1000,2000,
           3000,1500,2500,3500,3000,2500,2000,1500,1500,3000]
-Cij = #This is a 30*10 matrix
-np.array([[93.50935782,43.68065934,44.04543109,14.14213562,39.11521443,53.15072906,
+#This is a 30*10 matrix
+Cij=np.array([[93.50935782,43.68065934,44.04543109,14.14213562,
+			 39.11521443,53.15072906,
                  35.4682957,56.60388679,41.43669871, 78.23042886], [9.486832981,
                 64.63745044, 58.25804665, 113.1459235, 78.89233169,75.95393341,
                 90.55385138, 46.75467891, 80.5294977, 37.01351105],[96.9381246,
@@ -139,8 +141,8 @@ Creating the model & variables
 #create the model
 model = pulp.LpProblem("part1",pulp.LpMinimize)
 #set Cij,which is whether the j neighborhood will go to the i site
-Boo = pulp.LpVariable.dicts("Bool",((i, j) for i in range(30) for j in range(10)),
-						  lowBound=0,cat='Binary')
+Boo = pulp.LpVariable.dicts("Bool",((i, j) for i in range(30) 
+						for j in range(10)),lowBound=0,cat='Binary')
 #set N, which is whether the i site will be open
 N = pulp.LpVariable.dicts("N",((i) for i in range(10)),cat='Binary')
 ```
@@ -148,18 +150,18 @@ Create the constraints
 ```python
 #each neighborhood will only go to one testing site
 for i in range(30):
-    model += pulp.lpSum([C[i,j] for j in range(10)]) == 1
+    model += pulp.lpSum([Boo[i,j] for j in range(10)]) == 1
 #the capacity will not be exceeded
 for j in range(10):
-    model += pulp.lpSum([demand[i]*C[i,j]  for i in range(30)]) <= N[j]*capacity[j]
+    model += pulp.lpSum([demand[i]*Boo[i,j]  for i in range(30)]) <= N[j]*capacity[j]
 #Only 4 testing sites will open
 model += pulp.lpSum([N[i] for i in range(10)]) == 4
 ```
 Create the optimization objective
 ```python
 #Minimize the sum of the distances
-model += pulp.lpSum([Boo[i,j]*Cij[i,j]*demand[i] for i in range(30) 
-					 for j in range(10)])
+model += pulp.lpSum([Boo[i,j]*Cij[i,j]*demand[i] 
+                     for i in range(30) for j in range(10)])
 ```
 Solve and print the solution
 ```python
@@ -235,7 +237,7 @@ Creating the model & variables
 #create the model
 model = pulp.LpProblem("part2",pulp.LpMinimize)
 #set the Rij boolean variable
-C = pulp.LpVariable.dicts("Cost",((i, j) for i in range(6) for j in range(4)),
+R = pulp.LpVariable.dicts("Cost",((i, j) for i in range(6) for j in range(4)),
 						  lowBound=0,cat='Binary')
 ```
 Create the constraints
@@ -375,6 +377,7 @@ for i in range(5):
                 model += pulp.lpSum([x[i,j]+x[j,k]+x[k,i]]) <= 2
 #subtours (4 nodes)
 for i in range(5):
+	for j in range(5):
         for k in range(5):
             for l in range(5):
                 if (i != j and i!=k and i != l and
@@ -404,13 +407,13 @@ print('X =\n',X)
 print('Minimum cost:',pulp.value(model.objective))
 ```
 ### The solution 
-	X =[[0. 0. 1. 0. 0.]
-    	[0. 0. 0. 0. 1.]
-	    [0. 0. 0. 1. 0.]
-    	[0. 1. 0. 0. 0.]
-    	[1. 0. 0. 0. 0.]]
+	X =[[0. 0. 0. 0. 1.]
+    	[0. 0. 0. 1. 0.]
+	    [1. 0. 0. 0. 0.]
+    	[0. 0. 1. 0. 0.]
+    	[0. 1. 0. 0. 0.]]
 		Minimum cost: 223.93810046
-The route is
+Setting 5 as the start and the finish, the route is (note that the order is reversed)
 >X51 + X13 + X34 +X42 + X25
 
 Where 1,2,3,4 is testing site 1,4,8,9 and 5 is the lab
