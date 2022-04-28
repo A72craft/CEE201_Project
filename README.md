@@ -1,8 +1,16 @@
 # CEE201_project
 ### [Github repository for this project](https://github.com/A72craft/CEE201_Project.git)
-The code and the original .MD file is in the repository 
+The code and the original .MD file are in the repository 
 ## Introduction:
 In this project we are asked to come up with a comprehensive covid-19 plan which is made of three parts: opening testing centers, providing the testing material, and picking up all the tests. In the following three parts we will be formatting the problem given and solving it with python.
+## Executive Summary
+The problem that we will solve is to tackle the Covid-19 testing issues for 30 neighborhoods. Our plan has three procedures: opening testing centers, providing the testing materials, and picking up all tests. The main objective for our plan is to minimize the total cost of all the procedures while ensuring the need for all the neighborhoods.
+
+We use linear programming for the opening testing centers problem to solve this problem. We need to choose 4 locations from 10 potential sites in this situation. Also, each location can only satisfy at most 25,000 residents. We also assume that the cost from each neighborhood to each testing center will equal the Euclidean distance between them. First, we calculated the distance between them and formulated them as the cost from neighborhood to testing locations (Cij). Then, we created two decision variables: Bool(ij), if neighborhood will j go to the testing center i or not, and N(i), if the testing center i will open or not. Our minimization objective function is Σ Cij* Bool(ij). We will consider two constraints: only four testing sites will be selected, and the site's capacity will not exceed 25000. After considering the objective function, we use the pulp in python to solve the problem. Eventually, we get sites 1, 4,8, 9, and a total cost of 1,433,017.55.
+
+Providing testing the testing material is a transportation problem. We still use linear programming to solve it. After determining the optimal sites to open, we need to transport testing materials to each site. First, we calculated the cost from each testing site to testing sites 1, 4, 8, and 9. Then, we created decision variables “Route_ij,” which determine whether we use ith supplier to supply jth testing site or not. The objective function is the Cost times the decision variable, and the objective is to minimize the total cost. Then, we use the pulp in python to solve the objective function. In the end, we get site one will be supplied by supplier 3, site four will be provided by supplier 6, and both sites 8 and 9will be provided by supplier 1. The total cost from the result is 129,000.
+
+The last question is about picking up all the tests from our open testing sites. We still assume that the cost is the Euclidean distance between different points in this problem. We created decision variables X(ij), in which i will be the start node, and j will be the reach node. We calculated the distance between each site, including the laboratory. The objective function will be the total cost between sites and their corresponding decision variables. There are many constraints to this question. Two of the constraints will be only one trip going into each site and only one trip coming into each. In addition, we need to eliminate Subtour phenomena, including two nodes, three nodes,and four nodes in this case. After setting up objective functions and constraints, we get the best route for picking up the test. Our result is Lab -> Site 1 -> Site 8 -> Site 9 -> Site 4 -> Lab. The total cost of this route is 224.
 ## Part 1. Opening testing centers (facility location problem)
 
 ### Decision variables & Parameters
@@ -318,18 +326,21 @@ All the Outbound constraint for the nodes
 Subtour constraints  (2 nodes)  
 
 	X12 + X21 <= 1
+	X23 + X32 <= 1
 	.
 	.
 	.
 Subtour constraints  (3 nodes) 
 
 	X12 + X23 + X31 <= 2
+	X23 + X34 + X42 <= 2
 	.
 	.
 	.
 Subtour constraints  (4 nodes) 
 
 	X12 + X23 + X34 + X41 <= 3
+	X23 + X34 + X45 + X52 <= 3
 	.
 	.
 	.
